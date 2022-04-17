@@ -56,7 +56,7 @@ class PostURLTests(TestCase):
                 self.assertEqual(response.status_code, 200)
 
     def test_create_url_exists_at_desired_location(self):
-        """Страница create доступна авторизованному пользователю."""
+        """ Страница create доступна авторизованному пользователю. """
         response = self.authorized_client.get('/create/')
         self.assertEqual(response.status_code, 200)
 
@@ -102,6 +102,6 @@ class PostURLTests(TestCase):
                 self.assertTemplateUsed(response, template)
 
     def test_404_url_exists_at_desired_location(self):
-        """запрос к несуществующей странице вернёт ошибку 404."""
+        """ запрос к несуществующей странице вернёт ошибку 404. """
         response = self.guest_client.get('/group/general/')
         self.assertEqual(response.status_code, 404)

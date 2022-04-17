@@ -56,7 +56,7 @@ class TaskCreateFormTests(TestCase):
         self.post.refresh_from_db()
         self.assertRedirects(response, reverse('posts:profile', kwargs={
             'username': self.user.username}))
-        self.assertEqual(Post.objects.count(), posts_count+1)
+        self.assertEqual(Post.objects.count(), posts_count + 1)
         self.assertEqual(first_post.text, self.post.text)
 
     def test_post_edit(self):
@@ -82,8 +82,8 @@ class TaskCreateFormTests(TestCase):
         self.assertEqual(self.edit_post_2.text, new_text)
 
     def test_post_edit_guest_client(self):
-        """Неавторизованный пользователь 
-        не может редактировать записи на сайте."""
+        """ Неавторизованный пользователь
+        не может редактировать записи на сайте. """
         posts_count = Post.objects.count()
         new_text_2 = 'new_text_from_guest_client'
         form_data = {
@@ -91,15 +91,16 @@ class TaskCreateFormTests(TestCase):
             'author': self.edit_post_2.author,
             'group': self.edit_post_2.group.pk
         }
+        post_ed = 'posts:post_edit'
         response = self.guest_client.post(
-            reverse('posts:post_edit', kwargs={'post_id': self.edit_post_2.pk}),
+            reverse(post_ed, kwargs={'post_id': self.edit_post_2.pk}),
             data=form_data,
             follow=True
         )
         post_name = 'posts:post_edit'
         self.assertRedirects(response,
-        f"{reverse('users:login')}?next="
-        f"{reverse(post_name, kwargs={'post_id': self.edit_post_2.pk})}")
+                             f"{reverse('users:login')}?next="
+                             f"{reverse(post_name, kwargs={'post_id': self.edit_post_2.pk})}")
         # Проверка на то, что в БД не создается новая запись
         self.assertEqual(Post.objects.count(), posts_count)
         self.edit_post_2.refresh_from_db()
