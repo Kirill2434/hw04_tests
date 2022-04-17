@@ -98,9 +98,10 @@ class TaskCreateFormTests(TestCase):
             follow=True
         )
         post_name = 'posts:post_edit'
+        name = reverse(post_name, kwargs={'post_id': self.edit_post_2.pk})
         self.assertRedirects(response,
                              f"{reverse('users:login')}?next="
-                             f"{reverse(post_name, kwargs={'post_id': self.edit_post_2.pk})}")
+                             f"{name}")
         # Проверка на то, что в БД не создается новая запись
         self.assertEqual(Post.objects.count(), posts_count)
         self.edit_post_2.refresh_from_db()
