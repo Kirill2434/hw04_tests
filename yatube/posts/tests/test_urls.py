@@ -84,16 +84,16 @@ class PostURLTests(TestCase):
     def test_posts_urls_uses_correct_template(self):
         """ URL-адрес использует соответствующий шаблон. """
         templates_url_names = {
-            self.dict_pages['home'][0]: 
-            self.dict_pages['home'][1],
-            f"/{self.dict_pages['group'][0]}/{self.group.slug}/": 
-            self.dict_pages['group'][1],
-            f"/{self.dict_pages['create'][0]}/": 
-            self.dict_pages['create'][1],
-            f"/{self.dict_pages['profile'][0]}/{self.post.author}/": 
-            self.dict_pages['profile'][1],
+            self.dict_pages['home'][0]:
+                self.dict_pages['home'][1],
+            f"/{self.dict_pages['group'][0]}/{self.group.slug}/":
+                self.dict_pages['group'][1],
+            f"/{self.dict_pages['create'][0]}/":
+                self.dict_pages['create'][1],
+            f"/{self.dict_pages['profile'][0]}/{self.post.author}/":
+                self.dict_pages['profile'][1],
             f"/{self.dict_pages['posts_detail'][0]}/{self.post.pk}/":
-            self.dict_pages['posts_detail'][1]
+                self.dict_pages['posts_detail'][1]
 
         }
         for address, template in templates_url_names.items():
