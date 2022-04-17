@@ -134,4 +134,10 @@ EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
+CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
+
+SUM_OF_PAGINATOR_POSTS = 13
+
 POSTS_PER_PAGE = 10
+
+SECOND_PAGE_PAGINATOR_POSTS = 3

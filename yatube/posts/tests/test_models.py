@@ -11,10 +11,8 @@ class PostModelTest(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.post = Post.objects.create(
-            author=User.objects.create_user(username='auth',
-                                            email='example@yandex.ru',
-                                            password='123456789'),
-            text='Тестовый пост',
+            author=User.objects.create_user(username='Auth'),
+            text='Тестовый пост увеличим кол-во символов',
         )
         cls.group = Group.objects.create(
             title='Тестовая группа',
@@ -22,14 +20,16 @@ class PostModelTest(TestCase):
             description='Тестовое описание',
         )
 
-    def test_models_have_correct_object_names(self):
+    def test_models_have_correct_str_(self):
         """Проверяем, что у моделей корректно работает __str__."""
         post = PostModelTest.post
-        expected_object_name = post.text[:15]
-        self.assertEqual(expected_object_name, str(post), 'Тест сломалсяя((')
-
-    def test_models_have_correct_groups_names(self):
-        """Проверяем, что у групп корректно работает __str__."""
+        expected_object_name_post = self.post.text[:15]
         group = PostModelTest.group
-        expected_object_name = group.title
-        self.assertEqual(expected_object_name, str(group), 'Тест сломалсяя((')
+        expected_object_name_group = group.title
+        models = {
+            expected_object_name_post: str(post)[:15],
+            expected_object_name_group: str(group)
+        }
+        for expected_object_name, model in models.items():
+            with self.subTest(expected_object_name=expected_object_name):
+                self.assertEqual(expected_object_name, model)

@@ -13,25 +13,38 @@ class TaskCreateFormTests(TestCase):
         super().setUpClass()
         cls.user = User.objects.create_user(username='Auth')
         cls.group = Group.objects.create(
-            title='Тестовая группа',
+            title='Ожидаемая группа',
             slug='test-slug',
             description='Тестовое описание',
         )
+        cls.group_2 = Group.objects.create(
+            title='Тестовая группа_2',
+            slug='test-slug_2',
+            description='Тестовое описание_2',
+        )
         cls.post = Post.objects.create(
-            text='Тестовый текст',
+            text='Ожидаемый текст',
             author=cls.user,
             group=cls.group
         )
+        cls.edit_post_2 = Post.objects.create(
+            text='Отредактированный текст',
+            author=cls.user,
+            group=cls.group_2
+        )
 
     def setUp(self):
+        self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
     def test_post_create(self):
         """Валидная форма post_create создает запись в Post."""
         posts_count = Post.objects.count()
+        create_text = 'Ожидаемый текст'
         form_data = {
-            'text': self.post.text,
+            'text': create_text,
+            'author': self.post.author,
             'group': self.group.pk
         }
         response = self.authorized_client.post(
@@ -39,38 +52,54 @@ class TaskCreateFormTests(TestCase):
             data=form_data,
             follow=True
         )
+        first_post = Post.objects.first()
+        self.post.refresh_from_db()
         self.assertRedirects(response, reverse('posts:profile', kwargs={
-            'username': self.post.author
-        }
-        )
-        )
-        self.assertEqual(Post.objects.count(), posts_count + 1)
-        self.assertTrue(
-            Post.objects.filter(
-                group=form_data['group'],
-                text=form_data['text'],
-            ).exists()
-        )
+            'username': self.user.username}))
+        self.assertEqual(Post.objects.count(), posts_count+1)
+        self.assertEqual(first_post.text, self.post.text)
 
     def test_post_edit(self):
-        """Валидная форма post_edit создает запись в Post."""
+        """Валидная форма post_edit редактирует запись в Post."""
         posts_count = Post.objects.count()
+        new_text = 'new_text'
         form_data = {
-            'text': self.post.text,
-            'group': self.group.pk
+            'text': new_text,
+            'author': self.edit_post_2.author,
+            'group': self.edit_post_2.group.pk
         }
         response = self.authorized_client.post(
-            reverse('posts:post_edit', kwargs={'post_id': self.post.pk}),
+            reverse(
+                'posts:post_edit', kwargs={'post_id': self.edit_post_2.pk}),
             data=form_data,
             follow=True
         )
         self.assertRedirects(response, reverse('posts:post_detail', kwargs={
-            'post_id': self.post.id}))
+            'post_id': self.edit_post_2.id}))
         # Проверка на то, что в БД не создается новая запись
         self.assertEqual(Post.objects.count(), posts_count)
-        self.assertTrue(
-            Post.objects.filter(
-                group=form_data['group'],
-                text=form_data['text'],
-            ).exists()
+        self.edit_post_2.refresh_from_db()
+        self.assertEqual(self.edit_post_2.text, new_text)
+
+    def test_post_edit_guest_client(self):
+        """Неавторизованный пользователь 
+        не может редактировать записи на сайте."""
+        posts_count = Post.objects.count()
+        new_text_2 = 'new_text_from_guest_client'
+        form_data = {
+            'text': new_text_2,
+            'author': self.edit_post_2.author,
+            'group': self.edit_post_2.group.pk
+        }
+        response = self.guest_client.post(
+            reverse('posts:post_edit', kwargs={'post_id': self.edit_post_2.pk}),
+            data=form_data,
+            follow=True
         )
+        post_name = 'posts:post_edit'
+        self.assertRedirects(response,
+        f"{reverse('users:login')}?next="
+        f"{reverse(post_name, kwargs={'post_id': self.edit_post_2.pk})}")
+        # Проверка на то, что в БД не создается новая запись
+        self.assertEqual(Post.objects.count(), posts_count)
+        self.edit_post_2.refresh_from_db()
