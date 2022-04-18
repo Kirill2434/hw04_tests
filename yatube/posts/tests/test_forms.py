@@ -44,7 +44,6 @@ class TaskCreateFormTests(TestCase):
         create_text = 'Ожидаемый текст'
         form_data = {
             'text': create_text,
-            'author': self.post.author,
             'group': self.group.pk
         }
         response = self.authorized_client.post(
@@ -52,25 +51,25 @@ class TaskCreateFormTests(TestCase):
             data=form_data,
             follow=True
         )
-        first_post = Post.objects.first()
+        last_post = Post.objects.last()
         self.post.refresh_from_db()
         self.assertRedirects(response, reverse('posts:profile', kwargs={
             'username': self.user.username}))
         self.assertEqual(Post.objects.count(), posts_count + 1)
-        self.assertEqual(first_post.text, self.post.text)
+        self.assertEqual(last_post, self.post)
 
     def test_post_edit(self):
         """Валидная форма post_edit редактирует запись в Post."""
         posts_count = Post.objects.count()
-        new_text = 'new_text'
+        last_post = self.edit_post_2
+        new_text = 'Новый текст'
         form_data = {
             'text': new_text,
-            'author': self.edit_post_2.author,
-            'group': self.edit_post_2.group.pk
+            'group': self.edit_post_2.group.id
         }
         response = self.authorized_client.post(
             reverse(
-                'posts:post_edit', kwargs={'post_id': self.edit_post_2.pk}),
+                'posts:post_edit', kwargs={'post_id': self.edit_post_2.id}),
             data=form_data,
             follow=True
         )
@@ -78,8 +77,7 @@ class TaskCreateFormTests(TestCase):
             'post_id': self.edit_post_2.id}))
         # Проверка на то, что в БД не создается новая запись
         self.assertEqual(Post.objects.count(), posts_count)
-        self.edit_post_2.refresh_from_db()
-        self.assertEqual(self.edit_post_2.text, new_text)
+        self.assertEqual(last_post, self.edit_post_2)
 
     def test_post_edit_guest_client(self):
         """ Неавторизованный пользователь
@@ -88,7 +86,6 @@ class TaskCreateFormTests(TestCase):
         new_text_2 = 'new_text_from_guest_client'
         form_data = {
             'text': new_text_2,
-            'author': self.edit_post_2.author,
             'group': self.edit_post_2.group.pk
         }
         post_ed = 'posts:post_edit'
@@ -99,9 +96,9 @@ class TaskCreateFormTests(TestCase):
         )
         post_name = 'posts:post_edit'
         name = reverse(post_name, kwargs={'post_id': self.edit_post_2.pk})
+        self.edit_post_2.refresh_from_db()
         self.assertRedirects(response,
                              f"{reverse('users:login')}?next="
                              f"{name}")
         # Проверка на то, что в БД не создается новая запись
         self.assertEqual(Post.objects.count(), posts_count)
-        self.edit_post_2.refresh_from_db()

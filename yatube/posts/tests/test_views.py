@@ -9,6 +9,9 @@ from ..models import Group, Post
 
 User = get_user_model()
 
+SUM_OF_PAGINATOR_POSTS = 13
+SECOND_PAGE_PAGINATOR_POSTS = SUM_OF_PAGINATOR_POSTS - settings.POSTS_PER_PAGE
+
 
 class PostViewsTests(TestCase):
     @classmethod
@@ -186,7 +189,7 @@ class PiginatorViewsTest(TestCase):
             slug='test_slug',
             description='Тестовое_описание_2'
         )
-        for post_text in range(settings.SUM_OF_PAGINATOR_POSTS):
+        for post_text in range(SUM_OF_PAGINATOR_POSTS):
             cls.posts = Post.objects.create(
                 author=cls.user,
                 group=cls.group,
@@ -226,4 +229,4 @@ class PiginatorViewsTest(TestCase):
                 response = self.authorized_client.get(templates_2[num_2])
                 self.assertEqual(len(
                     response.context['page_obj']
-                ), settings.SECOND_PAGE_PAGINATOR_POSTS)
+                ), SECOND_PAGE_PAGINATOR_POSTS)

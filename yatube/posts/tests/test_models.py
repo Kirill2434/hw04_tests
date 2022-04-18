@@ -27,9 +27,9 @@ class PostModelTest(TestCase):
         group = PostModelTest.group
         expected_object_name_group = group.title
         models = {
-            expected_object_name_post: str(post)[:15],
+            expected_object_name_post: str(post),
             expected_object_name_group: str(group)
         }
         for expected_object_name, model in models.items():
             with self.subTest(expected_object_name=expected_object_name):
-                self.assertEqual(expected_object_name, model)
+                self.assertEqual(expected_object_name, model[:15])
