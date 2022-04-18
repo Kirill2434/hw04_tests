@@ -73,10 +73,12 @@ class TaskCreateFormTests(TestCase):
             data=form_data,
             follow=True
         )
+
         self.assertRedirects(response, reverse('posts:post_detail', kwargs={
             'post_id': self.edit_post_2.id}))
         # Проверка на то, что в БД не создается новая запись
         self.assertEqual(Post.objects.count(), posts_count)
+        self.edit_post_2.refresh_from_db()
         self.assertEqual(last_post, self.edit_post_2)
 
     def test_post_edit_guest_client(self):
