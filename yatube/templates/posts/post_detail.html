@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load user_filters %}
+<!--{% load user_filters %}-->
 {% load thumbnail %}
 {% block title %}
   Пост {{ posts.text|truncatechars:30 }}
@@ -43,7 +43,6 @@
         </a>
       {% endif %}
     </article>
-    {% include 'posts/includes/comment.html' %}
   </div>
 {% endblock %}
 
