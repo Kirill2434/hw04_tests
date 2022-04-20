@@ -17,20 +17,10 @@ class TaskCreateFormTests(TestCase):
             slug='test-slug',
             description='Тестовое описание',
         )
-        cls.group_2 = Group.objects.create(
-            title='Тестовая группа_2',
-            slug='test-slug_2',
-            description='Тестовое описание_2',
-        )
-        cls.post = Post.objects.create(
-            text='Ожидаемый текст',
+        cls.edit_post_2 = Post.objects.create(
+            text='Новый текст',
             author=cls.user,
             group=cls.group
-        )
-        cls.edit_post_2 = Post.objects.create(
-            text='Отредактированный текст',
-            author=cls.user,
-            group=cls.group_2
         )
 
     def setUp(self):
@@ -40,8 +30,13 @@ class TaskCreateFormTests(TestCase):
 
     def test_post_create(self):
         """Валидная форма post_create создает запись в Post."""
+        self.post = Post.objects.create(
+            text='Старый текст',
+            author=self.user,
+            group=self.group
+        )
         posts_count = Post.objects.count()
-        create_text = 'Ожидаемый текст'
+        create_text = 'Новый текст'
         form_data = {
             'text': create_text,
             'group': self.group.pk
@@ -51,35 +46,40 @@ class TaskCreateFormTests(TestCase):
             data=form_data,
             follow=True
         )
-        last_post = Post.objects.last()
-        self.post.refresh_from_db()
+        first_post = Post.objects.last()
         self.assertRedirects(response, reverse('posts:profile', kwargs={
             'username': self.user.username}))
         self.assertEqual(Post.objects.count(), posts_count + 1)
-        self.assertEqual(last_post, self.post)
+        self.assertEqual(first_post.text, create_text)
+        self.assertEqual(first_post.author, self.post.author)
+        self.assertEqual(first_post.group, self.post.group)
 
     def test_post_edit(self):
         """Валидная форма post_edit редактирует запись в Post."""
+        self.post = Post.objects.create(
+            text='Старый текст',
+            author=self.user,
+            group=self.group
+        )
         posts_count = Post.objects.count()
-        last_post = self.edit_post_2
-        new_text = 'Новый текст'
+        new_text = 'Отредактированный текст'
         form_data = {
             'text': new_text,
-            'group': self.edit_post_2.group.id
+            'group': self.post.group.id
         }
         response = self.authorized_client.post(
             reverse(
-                'posts:post_edit', kwargs={'post_id': self.edit_post_2.id}),
+                'posts:post_edit', kwargs={'post_id': self.post.id}),
             data=form_data,
             follow=True
         )
-
+        first_post = Post.objects.first()
         self.assertRedirects(response, reverse('posts:post_detail', kwargs={
-            'post_id': self.edit_post_2.id}))
-        # Проверка на то, что в БД не создается новая запись
+            'post_id': self.post.id}))
         self.assertEqual(Post.objects.count(), posts_count)
-        self.edit_post_2.refresh_from_db()
-        self.assertEqual(last_post, self.edit_post_2)
+        self.assertEqual(first_post.text, new_text)
+        self.assertEqual(first_post.author, self.post.author)
+        self.assertEqual(first_post.group, self.post.group)
 
     def test_post_edit_guest_client(self):
         """ Неавторизованный пользователь
@@ -102,5 +102,4 @@ class TaskCreateFormTests(TestCase):
         self.assertRedirects(response,
                              f"{reverse('users:login')}?next="
                              f"{name}")
-        # Проверка на то, что в БД не создается новая запись
         self.assertEqual(Post.objects.count(), posts_count)

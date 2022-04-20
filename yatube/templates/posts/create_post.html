@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load thumbnail %}
 {% block title %}
   {% if is_edit %}
     Редактирование поста
@@ -34,9 +35,9 @@
           {% endfor %}
         {% endif %}
         {% if is_edit %}
-        <form method="POST" action="{% url 'posts:post_edit' post.pk %}">
+        <form method="POST" enctype="multipart/form-data" action="{% url 'posts:post_edit' post.pk %}">
         {% else %}
-          <form method="POST" action="{% url 'posts:post_create' %}">
+          <form method="POST" enctype="multipart/form-data" action="{% url 'posts:post_create' %}">
         {% endif %}
         {% csrf_token %}
             {% for field in form %}
