@@ -64,8 +64,7 @@ def post_edit(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
     form = PostForm(request.POST or None,
                     files=request.FILES or None,
-                    instance=post
-    )
+                    instance=post)
     context = {
         'post': post,
         'form': form,
