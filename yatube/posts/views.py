@@ -62,7 +62,10 @@ def post_edit(request, post_id):
     is_edit = True
     user = request.user
     post = get_object_or_404(Post, pk=post_id)
-    form = PostForm(request.POST or None, files=request.FILES or None, instance=post)
+    form = PostForm(request.POST or None,
+                    files=request.FILES or None,
+                    instance=post
+    )
     context = {
         'post': post,
         'form': form,

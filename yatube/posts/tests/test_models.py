@@ -33,4 +33,3 @@ class PostModelTest(TestCase):
         for expected_object_name, model in models.items():
             with self.subTest(expected_object_name=expected_object_name):
                 self.assertEqual(expected_object_name, model)
-
