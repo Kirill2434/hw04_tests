@@ -121,9 +121,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-# MEDIA_URL = '/media/'
-#
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATIC_URL = '/static/'
 
@@ -141,4 +141,8 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
 CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
 
-POSTS_PER_PAGE = 10
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}

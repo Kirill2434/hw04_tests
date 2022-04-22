@@ -100,8 +100,3 @@ class PostURLTests(TestCase):
             with self.subTest(address=address):
                 response = self.authorized_client.get(address)
                 self.assertTemplateUsed(response, template)
-
-    def test_404_url_exists_at_desired_location(self):
-        """ запрос к несуществующей странице вернёт ошибку 404. """
-        response = self.guest_client.get('/group/general/')
-        self.assertEqual(response.status_code, 404)
